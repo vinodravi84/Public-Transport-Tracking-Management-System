@@ -1,23 +1,46 @@
 import React, { useEffect, useState } from "react";
 import API from "../../api/api";
+import "../../styles/DriverTracking.css";
 
 export default function DriverTracking() {
   const [vehicle, setVehicle] = useState(null);
   const [tracking, setTracking] = useState(false);
+  const [loading, setLoading] = useState(true);
   const user = JSON.parse(localStorage.getItem("user"));
 
   const load = async () => {
-    const res = await API.get("/vehicles");
-    const my = res.data.find(v => v.driverName === user.email);
-    setVehicle(my || null);
+    try {
+      setLoading(true);
+      const res = await API.get("/vehicles");
+      const my = res.data.find(v => v.driverName === user.email);
+      setVehicle(my || null);
+    } catch (error) {
+      console.error("Error loading vehicle:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     load();
   }, []);
 
-  if (!vehicle)
-    return <h3 style={{ padding: 20 }}>No vehicle assigned.</h3>;
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+      </div>
+    );
+  }
+
+  if (!vehicle) {
+    return (
+      <div className="empty-state">
+        <div className="empty-state-icon">🚗</div>
+        <p className="empty-state-text">No vehicle assigned.</p>
+      </div>
+    );
+  }
 
   const startTracking = () => {
     setTracking(true);
@@ -47,24 +70,20 @@ export default function DriverTracking() {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Live Tracking</h2>
+    <div className="driver-tracking-container">
+      <h2 className="tracking-header">Live Tracking</h2>
 
-      {!tracking ? (
-        <button
-          onClick={startTracking}
-          style={{ padding: "12px 20px", background: "green", color: "white" }}
-        >
-          ▶ Start Sharing Location
-        </button>
-      ) : (
-        <button
-          onClick={stopTracking}
-          style={{ padding: "12px 20px", background: "red", color: "white" }}
-        >
-          ■ Stop Tracking
-        </button>
-      )}
+      <div className="tracking-controls">
+        {!tracking ? (
+          <button onClick={startTracking} className="tracking-button start-button">
+            ▶ Start Sharing Location
+          </button>
+        ) : (
+          <button onClick={stopTracking} className="tracking-button stop-button">
+            ■ Stop Tracking
+          </button>
+        )}
+      </div>
     </div>
   );
 }
