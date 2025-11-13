@@ -9,6 +9,14 @@ import NotFound from "./pages/NotFound";
 import RegisterForm from "./components/RegisterForm";
 import AuthSuccess from "./pages/AuthSuccess";
 
+
+
+// NEW IMPORTS for Booking System
+import Book from "./pages/Book.js";
+import ConfirmBooking from "./pages/ConfirmBooking.js";
+import MyBookings from "./pages/MyBooking.js";
+import Track from "./pages/Track.js";
+
 function App() {
   const [user, setUser] = useState(() => {
     try {
@@ -19,7 +27,6 @@ function App() {
     }
   });
 
-  // Keep user in sync with localStorage across tabs and redirects
   const syncUserFromStorage = useCallback(() => {
     try {
       const stored = localStorage.getItem("user");
@@ -30,16 +37,13 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // when localStorage changes (other tab or after redirect), update state
     window.addEventListener("storage", syncUserFromStorage);
 
-    // when the tab becomes visible again (useful after redirect)
     const onVisibility = () => {
       if (!document.hidden) syncUserFromStorage();
     };
     document.addEventListener("visibilitychange", onVisibility);
 
-    // custom event to allow other code to force-sync when they write localStorage
     window.addEventListener("userChanged", syncUserFromStorage);
 
     return () => {
@@ -57,13 +61,20 @@ function App() {
         <Route path="/login" element={<LoginForm setUser={setUser} />} />
         <Route path="/register" element={<RegisterForm />} />
 
-        {/* Google Auth Success Handler */}
+        {/* Google Auth */}
         <Route path="/auth/success" element={<AuthSuccess />} />
 
-        {/* Dashboard & other protected pages */}
-        {/* Dashboard accepts prop but will also read from localStorage/fetch if needed */}
+        {/* Dashboard */}
         <Route path="/dashboard" element={<Dashboard user={user} />} />
+
+        {/* Vehicles (Admin only later) */}
         <Route path="/vehicles" element={<Vehicles user={user} />} />
+
+        {/* BOOKING SYSTEM ROUTES */}
+        <Route path="/book" element={<Book />} />
+        <Route path="/book/confirm" element={<ConfirmBooking />} />
+        <Route path="/bookings" element={<MyBookings />} />
+        <Route path="/track/:vehicleId" element={<Track />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

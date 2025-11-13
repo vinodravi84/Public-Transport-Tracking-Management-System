@@ -14,19 +14,45 @@ const Navbar = ({ user, setUser }) => {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <h1 className="navbar-logo">PT Tracker</h1>
+        
+        {/* Logo Click → Home */}
+        <h1 
+          className="navbar-logo" 
+          onClick={() => navigate("/")} 
+          style={{ cursor: "pointer" }}
+        >
+          PT Tracker
+        </h1>
+
         <div className="navbar-menu">
+
+          {/* Always Visible */}
           <Link to="/" className="navbar-link">Home</Link>
-          {user ? (
+
+          {/* Logged Out */}
+          {!user && (
             <>
+              <Link to="/login" className="navbar-link">Login</Link>
+              <Link to="/register" className="navbar-link">Register</Link>
+            </>
+          )}
+
+          {/* Logged In */}
+          {user && (
+            <>
+              {/* Passenger Booking Flow */}
+              <Link to="/book" className="navbar-link">Book Ticket</Link>
+              <Link to="/bookings" className="navbar-link">My Bookings</Link>
+
+              {/* Dashboard & Vehicles (temporary for demo) */}
               <Link to="/dashboard" className="navbar-link">Dashboard</Link>
               <Link to="/vehicles" className="navbar-link">Vehicles</Link>
+
+              {/* Logout */}
               <button onClick={handleLogout} className="navbar-button">
                 Logout
               </button>
             </>
-          ) : (
-            <Link to="/login" className="navbar-link">Login</Link>
           )}
         </div>
       </div>

@@ -1,6 +1,6 @@
 const Vehicle = require("../models/Vehicle");
-const Trip = require("../models/Trip");
 const Booking = require("../models/Booking");
+
 
 exports.getDashboardStats = async (req, res) => {
   try {
