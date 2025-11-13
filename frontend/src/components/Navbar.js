@@ -7,18 +7,21 @@ const Navbar = ({ user, setUser }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     setUser(null);
     navigate("/");
   };
 
+  const role = user?.role;
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        
-        {/* Logo Click → Home */}
-        <h1 
-          className="navbar-logo" 
-          onClick={() => navigate("/")} 
+
+        {/* Logo */}
+        <h1
+          className="navbar-logo"
+          onClick={() => navigate("/")}
           style={{ cursor: "pointer" }}
         >
           PT Tracker
@@ -26,10 +29,10 @@ const Navbar = ({ user, setUser }) => {
 
         <div className="navbar-menu">
 
-          {/* Always Visible */}
+          {/* Public */}
           <Link to="/" className="navbar-link">Home</Link>
 
-          {/* Logged Out */}
+          {/* Not Logged In */}
           {!user && (
             <>
               <Link to="/login" className="navbar-link">Login</Link>
@@ -37,18 +40,34 @@ const Navbar = ({ user, setUser }) => {
             </>
           )}
 
-          {/* Logged In */}
-          {user && (
+          {/* Passenger Menu */}
+          {user && role === "passenger" && (
             <>
-              {/* Passenger Booking Flow */}
               <Link to="/book" className="navbar-link">Book Ticket</Link>
               <Link to="/bookings" className="navbar-link">My Bookings</Link>
-
-              {/* Dashboard & Vehicles (temporary for demo) */}
               <Link to="/dashboard" className="navbar-link">Dashboard</Link>
-              <Link to="/vehicles" className="navbar-link">Vehicles</Link>
 
-              {/* Logout */}
+              <button onClick={handleLogout} className="navbar-button">
+                Logout
+              </button>
+            </>
+          )}
+
+          {/* Driver Menu */}
+          {user && role === "driver" && (
+            <>
+              <Link to="/driver" className="navbar-link">Driver Panel</Link>
+              <button onClick={handleLogout} className="navbar-button">
+                Logout
+              </button>
+            </>
+          )}
+
+          {/* Admin Menu — CLEANED, ONLY ONE ENTRY */}
+          {user && role === "admin" && (
+            <>
+              <Link to="/admin" className="navbar-link">Admin Panel</Link>
+
               <button onClick={handleLogout} className="navbar-button">
                 Logout
               </button>

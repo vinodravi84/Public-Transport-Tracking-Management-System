@@ -4,25 +4,22 @@ const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Register a new user
+// ------------------ REGISTER (PASSENGER ONLY) ------------------
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body; // include role
+    const { name, email, password } = req.body;
 
-    // Check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({ message: "User already exists" });
 
-    // Create user
     const user = await User.create({
       name,
       email,
       password,
-      role: role || "passenger", // default role is passenger
+      role: "passenger", // lock registration to passenger
     });
 
-    // Generate token including role
     const token = jwt.sign(
       { id: user._id, role: user.role },
       JWT_SECRET,
@@ -34,25 +31,24 @@ exports.register = async (req, res) => {
       token,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Register error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// Login
+// ------------------ LOGIN (ALL ROLES) ------------------
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check user
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    if (!user)
+      return res.status(400).json({ message: "Invalid credentials" });
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+    if (!isMatch)
+      return res.status(400).json({ message: "Invalid credentials" });
 
-    // Generate token including role
     const token = jwt.sign(
       { id: user._id, role: user.role },
       JWT_SECRET,
@@ -64,36 +60,46 @@ exports.login = async (req, res) => {
       token,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
+// ------------------ GOOGLE LOGIN (PASSENGER ONLY) ------------------
 exports.generateTokenAndRedirect = (req, res) => {
-  const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+  const token = jwt.sign(
+    { id: req.user._id, role: req.user.role },
+    JWT_SECRET,
+    { expiresIn: "7d" }
+  );
 
   const redirectURL = `${process.env.FRONTEND_URL}/auth/success?token=${token}`;
-
   return res.redirect(redirectURL);
 };
 
-
-// controllers/authController.js
+// ------------------ GET LOGGED IN USER ------------------
 exports.getMe = async (req, res) => {
-  // prevent caching/proxy caching so clients always get fresh JSON (no 304)
-  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate");
   res.set("Pragma", "no-cache");
   res.set("Expires", "0");
-  res.set("Surrogate-Control", "no-store");
 
-  if (!req.user) {
+  if (!req.user)
     return res.status(401).json({ message: "User not found" });
-  }
 
-  // send user (password removed by protect middleware)
-  return res.status(200).json({ user: req.user });
+  res.status(200).json({ user: req.user });
 };
 
+// ------------------ ADMIN: LIST USERS BY ROLE ------------------
+exports.listUsers = async (req, res) => {
+  try {
+    const { role } = req.query;
+    const query = role ? { role } : {};
 
+    const users = await User.find(query).select("-password");
+
+    res.json(users);
+  } catch (err) {
+    console.error("List users error:", err);
+    res.status(500).json({ message: "Failed to fetch users" });
+  }
+};

@@ -6,11 +6,11 @@ const userSchema = new mongoose.Schema({
 
   email: { type: String, required: true, unique: true },
 
-  // Password is required ONLY for normal accounts
+  // Password required for normal accounts AND driver accounts
   password: {
     type: String,
     required: function () {
-      return !this.googleId; // password not required for Google users
+      return !this.googleId; 
     },
   },
 
@@ -19,15 +19,14 @@ const userSchema = new mongoose.Schema({
     default: null,
   },
 
-  // Google users should never become admin
   role: {
     type: String,
-    enum: ["admin", "passenger"],
+    enum: ["admin", "passenger", "driver"],  // <--- ADDED DRIVER
     default: "passenger",
   },
 });
 
-// Hash password ONLY if it's a normal registration
+// Hash password
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password") || !this.password) return next();
 
@@ -37,9 +36,9 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// Compare password for normal login
+// Compare password
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  if (!this.password) return false; // for Google users
+  if (!this.password) return false;
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

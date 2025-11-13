@@ -1,81 +1,91 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import LoginForm from "./components/LoginForm";
+import RegisterForm from "./components/RegisterForm";
 import Vehicles from "./pages/Vehicles";
 import Navbar from "./components/Navbar";
 import NotFound from "./pages/NotFound";
-import RegisterForm from "./components/RegisterForm";
 import AuthSuccess from "./pages/AuthSuccess";
+import DriverDashboard from "./pages/driverDashboard";
 
+// ADMIN MODULE (only layouts + pages)
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminDrivers from "./pages/admin/AdminDrivers";
+import AdminVehicles from "./pages/admin/AdminVehicles";
+import AdminRoutes from "./pages/admin/AdminRoutes";
+import AdminAssignDriver from "./pages/admin/AdminAssignDriver";
 
-
-// NEW IMPORTS for Booking System
-import Book from "./pages/Book.js";
-import ConfirmBooking from "./pages/ConfirmBooking.js";
-import MyBookings from "./pages/MyBooking.js";
-import Track from "./pages/Track.js";
+// BOOKING
+import Book from "./pages/Book";
+import ConfirmBooking from "./pages/ConfirmBooking";
+import MyBookings from "./pages/MyBooking";
+import Track from "./pages/Track";
 
 function App() {
   const [user, setUser] = useState(() => {
     try {
-      const stored = localStorage.getItem("user");
-      return stored ? JSON.parse(stored) : null;
+      return JSON.parse(localStorage.getItem("user")) || null;
     } catch {
       return null;
     }
   });
 
-  const syncUserFromStorage = useCallback(() => {
+  const syncUser = useCallback(() => {
     try {
-      const stored = localStorage.getItem("user");
-      setUser(stored ? JSON.parse(stored) : null);
+      setUser(JSON.parse(localStorage.getItem("user")) || null);
     } catch {
       setUser(null);
     }
   }, []);
 
   useEffect(() => {
-    window.addEventListener("storage", syncUserFromStorage);
-
-    const onVisibility = () => {
-      if (!document.hidden) syncUserFromStorage();
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-
-    window.addEventListener("userChanged", syncUserFromStorage);
+    window.addEventListener("userChanged", syncUser);
+    window.addEventListener("storage", syncUser);
 
     return () => {
-      window.removeEventListener("storage", syncUserFromStorage);
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("userChanged", syncUserFromStorage);
+      window.removeEventListener("userChanged", syncUser);
+      window.removeEventListener("storage", syncUser);
     };
-  }, [syncUserFromStorage]);
+  }, [syncUser]);
 
   return (
     <Router>
       <Navbar user={user} setUser={setUser} />
+
       <Routes>
+        {/* PUBLIC ROUTES */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginForm setUser={setUser} />} />
         <Route path="/register" element={<RegisterForm />} />
-
-        {/* Google Auth */}
         <Route path="/auth/success" element={<AuthSuccess />} />
 
-        {/* Dashboard */}
+        {/* DASHBOARDS */}
         <Route path="/dashboard" element={<Dashboard user={user} />} />
-
-        {/* Vehicles (Admin only later) */}
         <Route path="/vehicles" element={<Vehicles user={user} />} />
+        <Route path="/driver" element={<DriverDashboard />} />
 
-        {/* BOOKING SYSTEM ROUTES */}
+        {/* BOOKING SYSTEM */}
         <Route path="/book" element={<Book />} />
         <Route path="/book/confirm" element={<ConfirmBooking />} />
         <Route path="/bookings" element={<MyBookings />} />
         <Route path="/track/:vehicleId" element={<Track />} />
 
+        {/* ADMIN — TRUE NESTED ROUTE */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="drivers" element={<AdminDrivers />} />
+          <Route path="vehicles" element={<AdminVehicles />} />
+          <Route path="routes" element={<AdminRoutes />} />
+          <Route path="assign" element={<AdminAssignDriver />} />
+        </Route>
+
+        {/* NOT FOUND */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

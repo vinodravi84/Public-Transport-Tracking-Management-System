@@ -8,11 +8,17 @@ const LoginForm = ({ setUser }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
+  const [role, setRole] = useState("passenger"); // NEW ROLE STATE
+
+  const navigate = useNavigate();
   const backendURL = process.env.REACT_APP_API_URL;
 
   const handleGoogleLogin = () => {
+    if (role !== "passenger") {
+      alert("Google login allowed only for passengers.");
+      return;
+    }
     window.location.href = `${backendURL}/auth/google`;
   };
 
@@ -23,12 +29,24 @@ const LoginForm = ({ setUser }) => {
 
     try {
       const res = await API.post("/auth/login", { email, password });
-      setUser(res.data.user);
+      const user = res.data.user;
 
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      // Ensure role matches selected role
+      if (user.role !== role) {
+        setError(`Invalid role. You are registered as: ${user.role}`);
+        setLoading(false);
+        return;
+      }
+
+      setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", res.data.token);
 
-      navigate("/dashboard");
+      // Redirect based on role
+      if (user.role === "admin") navigate("/admin");
+      else if (user.role === "driver") navigate("/driver");
+      else navigate("/dashboard");
+
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     } finally {
@@ -40,9 +58,32 @@ const LoginForm = ({ setUser }) => {
     <div className="login-container">
       <div className="login-card">
 
-        <h1 className="login-title">Welcome Back</h1>
-        <p className="login-subtitle">Login to your account</p>
-        
+        <h1 className="login-title">
+          Login as {role.charAt(0).toUpperCase() + role.slice(1)}
+        </h1>
+
+        {/* ROLE SELECTOR */}
+        <div className="role-switcher">
+          <button
+            className={role === "passenger" ? "active-role" : ""}
+            onClick={() => setRole("passenger")}
+          >
+            Passenger
+          </button>
+          <button
+            className={role === "driver" ? "active-role" : ""}
+            onClick={() => setRole("driver")}
+          >
+            Driver
+          </button>
+          <button
+            className={role === "admin" ? "active-role" : ""}
+            onClick={() => setRole("admin")}
+          >
+            Admin
+          </button>
+        </div>
+
         <form onSubmit={handleLogin} className="login-form">
           <div className="form-group">
             <label htmlFor="email" className="form-label">Email</label>
@@ -82,15 +123,15 @@ const LoginForm = ({ setUser }) => {
           </button>
         </form>
 
-        {/* 🚀 GOOGLE LOGIN BUTTON */}
+        {/* GOOGLE LOGIN FOR PASSENGERS ONLY */}
         <div className="google-login-container">
           <button className="google-login-btn" onClick={handleGoogleLogin}>
-            Continue with Google
+            Continue with Google (Passengers)
           </button>
         </div>
 
         <div className="register-link">
-          Don't have an account?{" "}
+          New Passenger?{" "}
           <button type="button" className="link-button" onClick={() => navigate("/register")}>
             Register
           </button>
