@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Button,
-  CircularProgress,
 } from "@mui/material";
 
 import DirectionsBusIcon from "@mui/icons-material/DirectionsBus";
@@ -13,11 +12,12 @@ import RouteIcon from "@mui/icons-material/Route";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EventSeatIcon from "@mui/icons-material/EventSeat";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
 import BookingAlertToggle from "../components/BookingAlertToggle";
+import LoadingSpinner from "../components/LoadingSpinner";
+import EmptyState from "../components/EmptyState";
 
 import "../styles/MyBooking.css";
 
@@ -56,15 +56,13 @@ export default function MyBookings() {
   if (!userId) {
     return (
       <div className="my-bookings-container">
-        <div className="login-prompt">
-          <AccountCircleIcon className="login-icon" />
-          <Typography variant="h5" className="empty-title">
-            Please Login
-          </Typography>
-          <Typography className="empty-subtitle">
-            You need to be logged in to view your bookings
-          </Typography>
-        </div>
+        <EmptyState
+          icon="🔒"
+          title="Please Login"
+          message="You need to be logged in to view your bookings"
+          actionText="Go to Login"
+          onAction={() => navigate("/login")}
+        />
       </div>
     );
   }
@@ -75,9 +73,7 @@ export default function MyBookings() {
   if (loading) {
     return (
       <div className="my-bookings-container">
-        <div className="loading-container">
-          <CircularProgress size={60} />
-        </div>
+        <LoadingSpinner fullscreen={true} size="lg" />
       </div>
     );
   }
@@ -97,15 +93,13 @@ export default function MyBookings() {
           </Typography>
         </div>
 
-        <div className="empty-state">
-          <ConfirmationNumberIcon className="empty-icon" />
-          <Typography variant="h5" className="empty-title">
-            No Bookings Yet
-          </Typography>
-          <Typography className="empty-subtitle">
-            You haven't made any bookings. Start by searching for buses!
-          </Typography>
-        </div>
+        <EmptyState
+          icon="🎫"
+          title="No Bookings Yet"
+          message="You haven't made any bookings. Start by searching for buses!"
+          actionText="Book a Ticket"
+          onAction={() => navigate("/book")}
+        />
       </div>
     );
   }

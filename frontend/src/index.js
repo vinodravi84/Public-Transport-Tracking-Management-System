@@ -11,6 +11,9 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 // LEAFLET (MAP) CSS — REQUIRED
 import "leaflet/dist/leaflet.css";
 
+// GLOBAL STYLES & THEME
+import "./index.css";
+
 // FIX LEAFLET MARKER ICONS
 import "./fixLeafletIcons";
 
@@ -34,5 +37,5 @@ root.render(
         <App />
       </ThemeProvider>
     </GoogleOAuthProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

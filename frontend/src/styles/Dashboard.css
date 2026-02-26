@@ -1,7 +1,11 @@
 .dashboard-container {
   min-height: calc(100vh - 80px);
-  background: #e2e8f0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e2e8f0 100%);
   padding: 2rem 1rem;
+}
+
+[data-theme="dark"] .dashboard-container {
+  background: linear-gradient(135deg, #0a0a0c 0%, #18181b 100%);
 }
 
 .dashboard-content {
@@ -30,6 +34,12 @@
   border-left: 4px solid #667eea;
 }
 
+[data-theme="dark"] .dashboard-header {
+  background: rgba(30, 30, 35, 0.9);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+  border-left-color: #818cf8;
+}
+
 .dashboard-title {
   font-size: 2rem;
   font-weight: 700;
@@ -37,10 +47,18 @@
   margin: 0 0 0.5rem 0;
 }
 
+[data-theme="dark"] .dashboard-title {
+  color: #f1f5f9;
+}
+
 .dashboard-welcome {
   color: #4a5568;
   font-size: 1.1rem;
   margin: 0 0 0.75rem 0;
+}
+
+[data-theme="dark"] .dashboard-welcome {
+  color: #94a3b8;
 }
 
 .dashboard-role {
@@ -69,6 +87,12 @@
   border: 1px solid #e2e8f0;
   position: relative;
   overflow: hidden;
+}
+
+[data-theme="dark"] .dashboard-card {
+  background: rgba(30, 30, 35, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 
 .dashboard-card::before {
@@ -120,11 +144,19 @@
   margin: 0 0 0.75rem 0;
 }
 
+[data-theme="dark"] .card-title {
+  color: #f1f5f9;
+}
+
 .card-description {
   color: #718096;
   font-size: 1rem;
   line-height: 1.6;
   margin: 0;
+}
+
+[data-theme="dark"] .card-description {
+  color: #94a3b8;
 }
 
 .error-message-dashboard {

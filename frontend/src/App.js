@@ -3,12 +3,12 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import LoginForm from "./components/LoginForm";
-import RegisterForm from "./components/RegisterForm";
+import Auth from "./pages/Auth";
 import Vehicles from "./pages/Vehicles";
 import Navbar from "./components/Navbar";
 import NotFound from "./pages/NotFound";
 import AuthSuccess from "./pages/AuthSuccess";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 // DRIVER MODULE (NEW)
 import DriverLayout from "./pages/driver/DriverLayout";
@@ -27,6 +27,8 @@ import Book from "./pages/Book";
 import ConfirmBooking from "./pages/ConfirmBooking";
 import MyBookings from "./pages/MyBooking";
 import Track from "./pages/Track";
+import Contact from "./pages/Contact";
+import About from "./pages/About";
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -56,47 +58,52 @@ function App() {
   }, [syncUser]);
 
   return (
-    <Router>
-      <Navbar user={user} setUser={setUser} />
+    <ErrorBoundary>
+      <Router>
+        <Navbar user={user} setUser={setUser} />
 
-      <Routes>
+        <Routes>
 
-        {/* PUBLIC ROUTES */}
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<LoginForm setUser={setUser} />} />
-        <Route path="/register" element={<RegisterForm />} />
-        <Route path="/auth/success" element={<AuthSuccess />} />
+          {/* PUBLIC ROUTES */}
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/signup" element={<Auth setUser={setUser} />} />
+          <Route path="/login" element={<Auth setUser={setUser} />} />
+          <Route path="/register" element={<Auth setUser={setUser} />} />
+          <Route path="/auth/success" element={<AuthSuccess />} />
 
-        {/* PASSENGER DASHBOARD */}
-        <Route path="/dashboard" element={<Dashboard user={user} />} />
+          {/* PASSENGER DASHBOARD */}
+          <Route path="/dashboard" element={<Dashboard user={user} />} />
 
-        {/* VEHICLES (visible to non-admin too) */}
-        <Route path="/vehicles" element={<Vehicles user={user} />} />
+          {/* VEHICLES (visible to non-admin too) */}
+          <Route path="/vehicles" element={<Vehicles user={user} />} />
 
-        {/* DRIVER MODULE */}
-        <Route path="/driver" element={<DriverLayout />} />
+          {/* DRIVER MODULE */}
+          <Route path="/driver" element={<DriverLayout />} />
 
-        {/* BOOKING MODULE */}
-        <Route path="/book" element={<Book />} />
-        <Route path="/book/confirm" element={<ConfirmBooking />} />
-        <Route path="/bookings" element={<MyBookings />} />
-        <Route path="/track/:vehicleId" element={<Track />} />
+          {/* BOOKING MODULE */}
+          <Route path="/book" element={<Book />} />
+          <Route path="/book/confirm" element={<ConfirmBooking />} />
+          <Route path="/bookings" element={<MyBookings />} />
+          <Route path="/track/:vehicleId" element={<Track />} />
 
-        {/* ADMIN NESTED ROUTE */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="drivers" element={<AdminDrivers />} />
-          <Route path="vehicles" element={<AdminVehicles />} />
-          <Route path="routes" element={<AdminRoutes />} />
-          <Route path="assign" element={<AdminAssignDriver />} />
-        </Route>
+          {/* ADMIN NESTED ROUTE */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="drivers" element={<AdminDrivers />} />
+            <Route path="vehicles" element={<AdminVehicles />} />
+            <Route path="routes" element={<AdminRoutes />} />
+            <Route path="assign" element={<AdminAssignDriver />} />
+          </Route>
 
-        {/* FALLBACK */}
-        <Route path="*" element={<NotFound />} />
+          {/* FALLBACK */}
+          <Route path="*" element={<NotFound />} />
 
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
